@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ESP32 LED Control</title>
+  <title>RC Car Control</title>
 </head>
+
 <body style="text-align:center; font-family:Arial;">
 
-  <h2>ESP32 LED Control</h2>
+  <h2>🚗 RC Car Control</h2>
 
-  <button onclick="send('ON')" style="padding:20px; font-size:20px;">ON</button>
-  <button onclick="send('OFF')" style="padding:20px; font-size:20px;">OFF</button>
+  <button onclick="send('F')" style="padding:20px;">Forward</button><br><br>
+
+  <button onclick="send('L')" style="padding:20px;">Left</button>
+  <button onclick="send('S')" style="padding:20px;">Stop</button>
+  <button onclick="send('R')" style="padding:20px;">Right</button><br><br>
+
+  <button onclick="send('B')" style="padding:20px;">Back</button>
 
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
@@ -19,8 +25,8 @@
       console.log("Connected to MQTT");
     });
 
-    function send(msg) {
-      client.publish('ankit123/esp32/led', msg);
+    function send(cmd) {
+      client.publish('ankit123/car/control', cmd);
     }
   </script>
 
