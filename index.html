@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>RC Car Joystick</title>
+  <title>RC Car Analog Control</title>
 
   <style>
     body {
@@ -30,25 +30,17 @@
       position: absolute;
       left: 75px;
       top: 75px;
-      transition: 0.05s;
-    }
-
-    input[type=range] {
-      width: 80%;
     }
   </style>
 </head>
 
 <body>
 
-<h2>🎮 Joystick Control</h2>
+<h2>🎮 RC Car Analog Control</h2>
 
 <div id="joystick">
   <div id="stick"></div>
 </div>
-
-<p>Speed: <span id="speedVal">150</span></p>
-<input type="range" min="0" max="255" value="150" id="speedSlider">
 
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
@@ -58,17 +50,9 @@ const client = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
 const joystick = document.getElementById("joystick");
 const stick = document.getElementById("stick");
 
-const radius = 100; // joystick radius
-const center = 110; // center point
+const radius = 100;
+const center = 110;
 
-// SPEED
-const slider = document.getElementById("speedSlider");
-slider.oninput = function(){
-  document.getElementById("speedVal").innerText = this.value;
-  client.publish('ankit123/car/speed', this.value);
-};
-
-// TOUCH EVENTS
 joystick.addEventListener("touchmove", move);
 joystick.addEventListener("touchend", reset);
 
@@ -77,33 +61,26 @@ function move(e){
   let x = e.touches[0].clientX - rect.left - center;
   let y = e.touches[0].clientY - rect.top - center;
 
-  // LIMIT inside circle (IMPORTANT FIX)
   let distance = Math.sqrt(x*x + y*y);
   if (distance > radius) {
     x = x * radius / distance;
     y = y * radius / distance;
   }
 
-  // move stick
   stick.style.left = (x + center - 35) + "px";
   stick.style.top = (y + center - 35) + "px";
 
-  // direction logic
-  if (y < -40) send("F");
-  else if (y > 40) send("B");
-  else if (x < -40) send("L");
-  else if (x > 40) send("R");
-  else send("S");
+  let nx = Math.round((x / radius) * 100);
+  let ny = Math.round((y / radius) * 100);
+
+  let data = JSON.stringify({x: nx, y: ny});
+  client.publish('ankit123/car/analog', data);
 }
 
 function reset(){
   stick.style.left = "75px";
   stick.style.top = "75px";
-  send("S");
-}
-
-function send(cmd){
-  client.publish('ankit123/car/control', cmd);
+  client.publish('ankit123/car/analog', JSON.stringify({x:0,y:0}));
 }
 </script>
 
