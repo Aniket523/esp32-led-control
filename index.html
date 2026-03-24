@@ -6,24 +6,44 @@
 
 <body style="text-align:center; font-family:Arial;">
 
-  <h2>🚗 RC Car Control</h2>
+  <h2>🚗 RC Car (Hold to Move)</h2>
 
-  <button onclick="send('F')" style="padding:20px;">Forward</button><br><br>
+  <button 
+    onmousedown="send('F')" 
+    onmouseup="send('S')" 
+    ontouchstart="send('F')" 
+    ontouchend="send('S')"
+    style="padding:20px;">Forward</button><br><br>
 
-  <button onclick="send('L')" style="padding:20px;">Left</button>
-  <button onclick="send('S')" style="padding:20px;">Stop</button>
-  <button onclick="send('R')" style="padding:20px;">Right</button><br><br>
+  <button 
+    onmousedown="send('L')" 
+    onmouseup="send('S')" 
+    ontouchstart="send('L')" 
+    ontouchend="send('S')"
+    style="padding:20px;">Left</button>
 
-  <button onclick="send('B')" style="padding:20px;">Back</button>
+  <button 
+    onclick="send('S')" 
+    style="padding:20px;">Stop</button>
+
+  <button 
+    onmousedown="send('R')" 
+    onmouseup="send('S')" 
+    ontouchstart="send('R')" 
+    ontouchend="send('S')"
+    style="padding:20px;">Right</button><br><br>
+
+  <button 
+    onmousedown="send('B')" 
+    onmouseup="send('S')" 
+    ontouchstart="send('B')" 
+    ontouchend="send('S')"
+    style="padding:20px;">Back</button>
 
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
   <script>
     const client = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
-
-    client.on('connect', function () {
-      console.log("Connected to MQTT");
-    });
 
     function send(cmd) {
       client.publish('ankit123/car/control', cmd);
