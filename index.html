@@ -2,51 +2,100 @@
 <html>
 <head>
   <title>RC Car Control</title>
+
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial;
+      user-select: none;
+      background: #111;
+      color: white;
+    }
+
+    h2 {
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 20px 30px;
+      margin: 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 12px;
+      background: #333;
+      color: white;
+      cursor: pointer;
+
+      /* Disable selection + highlight */
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+
+      /* Smooth animation */
+      transition: all 0.1s ease;
+    }
+
+    /* Press effect */
+    .btn:active {
+      transform: scale(0.9);
+      background: #00c853;
+    }
+
+    /* Layout */
+    .row {
+      margin: 10px;
+    }
+  </style>
+
 </head>
 
-<body style="text-align:center; font-family:Arial;">
+<body>
 
   <h2>🚗 RC Car (Hold to Move)</h2>
 
-  <button 
-    onmousedown="send('F')" 
-    onmouseup="send('S')" 
-    ontouchstart="send('F')" 
-    ontouchend="send('S')"
-    style="padding:20px;">Forward</button><br><br>
+  <div class="row">
+    <button class="btn"
+      onmousedown="press('F')" 
+      onmouseup="release()" 
+      ontouchstart="press('F')" 
+      ontouchend="release()">Forward</button>
+  </div>
 
-  <button 
-    onmousedown="send('L')" 
-    onmouseup="send('S')" 
-    ontouchstart="send('L')" 
-    ontouchend="send('S')"
-    style="padding:20px;">Left</button>
+  <div class="row">
+    <button class="btn"
+      onmousedown="press('L')" 
+      onmouseup="release()" 
+      ontouchstart="press('L')" 
+      ontouchend="release()">Left</button>
 
-  <button 
-    onclick="send('S')" 
-    style="padding:20px;">Stop</button>
+    <button class="btn" onclick="release()">Stop</button>
 
-  <button 
-    onmousedown="send('R')" 
-    onmouseup="send('S')" 
-    ontouchstart="send('R')" 
-    ontouchend="send('S')"
-    style="padding:20px;">Right</button><br><br>
+    <button class="btn"
+      onmousedown="press('R')" 
+      onmouseup="release()" 
+      ontouchstart="press('R')" 
+      ontouchend="release()">Right</button>
+  </div>
 
-  <button 
-    onmousedown="send('B')" 
-    onmouseup="send('S')" 
-    ontouchstart="send('B')" 
-    ontouchend="send('S')"
-    style="padding:20px;">Back</button>
+  <div class="row">
+    <button class="btn"
+      onmousedown="press('B')" 
+      onmouseup="release()" 
+      ontouchstart="press('B')" 
+      ontouchend="release()">Back</button>
+  </div>
 
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
   <script>
     const client = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
 
-    function send(cmd) {
+    function press(cmd) {
       client.publish('ankit123/car/control', cmd);
+    }
+
+    function release() {
+      client.publish('ankit123/car/control', 'S');
     }
   </script>
 
