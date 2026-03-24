@@ -1,35 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>RC Car Gamepad</title>
+  <title>RC Car Joystick</title>
 
   <style>
     body {
-      background: #0d0d0d;
+      background: #111;
       color: white;
       text-align: center;
       font-family: Arial;
       user-select: none;
     }
 
-    h2 {
-      margin: 20px;
-    }
-
-    .container {
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      margin-top: 40px;
-    }
-
-    /* Joystick */
     #joystick {
-      width: 200px;
-      height: 200px;
-      background: #222;
+      width: 220px;
+      height: 220px;
+      background: #333;
       border-radius: 50%;
+      margin: 60px auto;
       position: relative;
+      touch-action: none;
     }
 
     #stick {
@@ -38,66 +28,23 @@
       background: #00c853;
       border-radius: 50%;
       position: absolute;
-      top: 65px;
-      left: 65px;
+      left: 75px;
+      top: 75px;
       transition: 0.05s;
-    }
-
-    /* Buttons */
-    .btn {
-      width: 80px;
-      height: 80px;
-      margin: 10px;
-      border-radius: 50%;
-      border: none;
-      font-size: 18px;
-      color: white;
-      background: #333;
-
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-tap-highlight-color: transparent;
-
-      transition: 0.1s;
-    }
-
-    .btn:active {
-      transform: scale(0.85);
-      background: red;
-    }
-
-    .right {
-      display: grid;
-      grid-template-columns: repeat(2, 100px);
     }
 
     input[type=range] {
       width: 80%;
-      margin-top: 20px;
     }
   </style>
 </head>
 
 <body>
 
-<h2>🎮 RC Car Gamepad</h2>
+<h2>🎮 Joystick Control</h2>
 
-<div class="container">
-
-  <!-- Joystick -->
-  <div id="joystick">
-    <div id="stick"></div>
-  </div>
-
-  <!-- Buttons -->
-  <div class="right">
-    <button class="btn" onclick="send('F')">↑</button>
-    <button class="btn" onclick="send('R')">→</button>
-    <button class="btn" onclick="send('L')">←</button>
-    <button class="btn" onclick="send('B')">↓</button>
-    <button class="btn" onclick="send('S')">■</button>
-  </div>
-
+<div id="joystick">
+  <div id="stick"></div>
 </div>
 
 <p>Speed: <span id="speedVal">150</span></p>
@@ -108,42 +55,55 @@
 <script>
 const client = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
 
-function send(cmd){
-  client.publish('ankit123/car/control', cmd);
-}
+const joystick = document.getElementById("joystick");
+const stick = document.getElementById("stick");
 
-// Speed
+const radius = 100; // joystick radius
+const center = 110; // center point
+
+// SPEED
 const slider = document.getElementById("speedSlider");
 slider.oninput = function(){
   document.getElementById("speedVal").innerText = this.value;
   client.publish('ankit123/car/speed', this.value);
-}
+};
 
-// Joystick
-const stick = document.getElementById("stick");
-const joystick = document.getElementById("joystick");
-
+// TOUCH EVENTS
 joystick.addEventListener("touchmove", move);
-joystick.addEventListener("touchend", stop);
+joystick.addEventListener("touchend", reset);
 
 function move(e){
   let rect = joystick.getBoundingClientRect();
-  let x = e.touches[0].clientX - rect.left;
-  let y = e.touches[0].clientY - rect.top;
+  let x = e.touches[0].clientX - rect.left - center;
+  let y = e.touches[0].clientY - rect.top - center;
 
-  stick.style.left = (x-35) + "px";
-  stick.style.top = (y-35) + "px";
+  // LIMIT inside circle (IMPORTANT FIX)
+  let distance = Math.sqrt(x*x + y*y);
+  if (distance > radius) {
+    x = x * radius / distance;
+    y = y * radius / distance;
+  }
 
-  if(y < 70) send("F");
-  else if(y > 130) send("B");
-  else if(x < 70) send("L");
-  else if(x > 130) send("R");
+  // move stick
+  stick.style.left = (x + center - 35) + "px";
+  stick.style.top = (y + center - 35) + "px";
+
+  // direction logic
+  if (y < -40) send("F");
+  else if (y > 40) send("B");
+  else if (x < -40) send("L");
+  else if (x > 40) send("R");
+  else send("S");
 }
 
-function stop(){
-  stick.style.left = "65px";
-  stick.style.top = "65px";
+function reset(){
+  stick.style.left = "75px";
+  stick.style.top = "75px";
   send("S");
+}
+
+function send(cmd){
+  client.publish('ankit123/car/control', cmd);
 }
 </script>
 
